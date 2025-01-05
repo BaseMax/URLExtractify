@@ -7,29 +7,33 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         #input {
-            height: 150px;
+            min-height: 150px;
             overflow-y: auto;
         }
         #output {
-            height: 200px;
+            min-height: 200px;
         }
     </style>
 </head>
 <body>
     <div class="container my-5">
         <h1 class="text-center mb-4">URL Extractor Tool</h1>
-        <p class="text-muted text-center">
-            Paste content with links below to automatically extract and display all valid URLs.
+        <p class="text-center text-muted">
+            Paste content with links below, and this tool will extract all valid URLs for you.
         </p>
 
         <div class="mb-3">
-            <div id="input" contenteditable="true" class="form-control bg-light" 
-                 placeholder="Paste your content here"></div>
+            <div id="input" 
+                 class="form-control bg-light" 
+                 contenteditable="true" 
+                 aria-label="Input area for pasting content with links">
+                <span class="text-muted">Paste your content here...</span>
+            </div>
         </div>
 
-        <div id="output-container" class="mt-3 d-none">
+        <div id="output-container" class="d-none mt-3">
             <h2 class="h5">Extracted URLs</h2>
-            <textarea id="output" class="form-control mb-2" readonly></textarea>
+            <textarea id="output" class="form-control mb-2" readonly aria-label="Extracted URLs output"></textarea>
             <button id="copy-button" class="btn btn-primary w-100">Copy URLs to Clipboard</button>
         </div>
     </div>
@@ -40,47 +44,46 @@
         const output = document.getElementById('output');
         const copyButton = document.getElementById('copy-button');
 
+        const extractURLs = (htmlString) => {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = htmlString;
+
+            return Array.from(tempDiv.getElementsByTagName('a'))
+                .map(link => link.href)
+                .filter(url => url.startsWith('http'));
+        };
+
         input.addEventListener('paste', (event) => {
             event.preventDefault();
 
             const clipboardData = event.clipboardData || window.clipboardData;
             const pastedHTML = clipboardData.getData('text/html');
+            const urls = extractURLs(pastedHTML);
 
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = pastedHTML;
-
-            const links = Array.from(tempDiv.getElementsByTagName('a'))
-                .map(link => link.href)
-                .filter(url => url.startsWith('http'));
-
-            if (links.length > 0) {
-                output.value = links.join('\n');
+            if (urls.length > 0) {
+                output.value = urls.join('\n');
                 outputContainer.classList.remove('d-none');
             } else {
                 outputContainer.classList.add('d-none');
             }
 
-            input.textContent = 'Content processed. URLs have been extracted.';
+            input.innerHTML = '<span class="text-success">Content processed. URLs have been extracted.</span>';
         });
 
         input.addEventListener('focus', () => {
-            if (input.textContent === 'Content processed. URLs have been extracted.') {
-                input.textContent = '';
+            if (input.textContent.includes('Content processed')) {
+                input.innerHTML = '';
             }
         });
 
-        copyButton.addEventListener('click', () => {
-            output.select();
-            navigator.clipboard.writeText(output.value)
-                .then(() => {
-                    copyButton.textContent = 'Copied!';
-                    setTimeout(() => {
-                        copyButton.textContent = 'Copy URLs to Clipboard';
-                    }, 1500);
-                })
-                .catch(() => {
-                    alert('Failed to copy URLs. Please try again.');
-                });
+        copyButton.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(output.value);
+                copyButton.textContent = 'Copied!';
+                setTimeout(() => (copyButton.textContent = 'Copy URLs to Clipboard'), 1500);
+            } catch (error) {
+                alert('Failed to copy URLs. Please try again.');
+            }
         });
     </script>
 </body>
