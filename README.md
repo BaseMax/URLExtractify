@@ -10,6 +10,12 @@
 - **Copy to Clipboard:** Easily copy the extracted URLs with one click.
 - **Simple and Accessible UI:** User-friendly design with support for both external and internal URLs.
 
+## Screenshots
+
+| Screenshot 1             | Screenshot 2             |
+|--------------------------|--------------------------|
+| ![URL Extraction 1](screenshots/1.jpg) | ![URL Extraction 2](screenshots/2.jpg) |
+
 ## Live Demo
 
 Try it out online: [URLExtractify](https://basemax.github.io/URLExtractify/)
@@ -36,12 +42,6 @@ To run URLExtractify locally:
     - Include or exclude external URLs using the checkbox.
 3. **Extract URLs:** The tool processes the content and displays all extracted URLs in the output box.
 4. **Copy URLs:** Click the "Copy URLs to Clipboard" button to copy the extracted URLs for further use.
-
-## Screenshots
-
-![URL Extraction](screenshots/1.jpg)
-
-![URL Extraction](screenshots/2.jpg)
 
 ## Contributing
 
