@@ -1,0 +1,15 @@
+#input {
+    min-height: 150px;
+    overflow-y: auto;
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    padding: 10px;
+}
+#output {
+    min-height: 200px;
+    resize: none;
+}
+.placeholder {
+    color: #adb5bd;
+}

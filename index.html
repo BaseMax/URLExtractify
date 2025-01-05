@@ -4,24 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>URL Extractor Tool</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        #input {
-            min-height: 150px;
-            overflow-y: auto;
-            background-color: #f8f9fa;
-            border: 1px solid #ced4da;
-            border-radius: 0.25rem;
-            padding: 10px;
-        }
-        #output {
-            min-height: 200px;
-            resize: none;
-        }
-        .placeholder {
-            color: #adb5bd;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
     <div class="container my-5">
@@ -46,59 +30,6 @@
         </div>
     </div>
 
-    <script>
-        const input = document.getElementById('input');
-        const outputContainer = document.getElementById('output-container');
-        const output = document.getElementById('output');
-        const copyButton = document.getElementById('copy-button');
-
-        const extractURLs = (htmlString) => {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlString, 'text/html');
-            return Array.from(doc.links)
-                .map(link => link.href)
-                .filter(url => /^https?:\/\//.test(url));
-        };
-
-        input.addEventListener('paste', (event) => {
-            event.preventDefault();
-            const clipboardData = event.clipboardData || window.clipboardData;
-            const pastedHTML = clipboardData.getData('text/html') || clipboardData.getData('text/plain');
-            const urls = extractURLs(pastedHTML);
-
-            if (urls.length > 0) {
-                output.value = urls.join('\n');
-                outputContainer.classList.remove('d-none');
-                input.innerHTML = '<span class="text-success">Content processed. URLs have been extracted.</span>';
-            } else {
-                outputContainer.classList.add('d-none');
-                input.innerHTML = '<span class="text-danger">No valid URLs found. Please try again.</span>';
-            }
-        });
-
-        input.addEventListener('focus', () => {
-            if (input.textContent.includes('Content processed') || input.textContent.includes('No valid URLs found')) {
-                input.innerHTML = '';
-            } else if (input.querySelector('.placeholder')) {
-                input.textContent = '';
-            }
-        });
-
-        copyButton.addEventListener('click', async () => {
-            try {
-                await navigator.clipboard.writeText(output.value);
-                copyButton.textContent = 'Copied!';
-                setTimeout(() => (copyButton.textContent = 'Copy URLs to Clipboard'), 1500);
-            } catch {
-                alert('Failed to copy URLs. Please try again.');
-            }
-        });
-
-        input.addEventListener('blur', () => {
-            if (!input.textContent.trim()) {
-                input.innerHTML = '<span class="placeholder">Paste your content here...</span>';
-            }
-        });
-    </script>
+    <script type="text/javascript" src="script.js"></script>
 </body>
 </html>
