@@ -2,13 +2,35 @@ const input = document.getElementById('input');
 const outputContainer = document.getElementById('output-container');
 const output = document.getElementById('output');
 const copyButton = document.getElementById('copy-button');
+const defaultCheckbox = document.getElementById('defaultCheckbox');
+const removeDuplicatesCheckbox = document.getElementById('removeDuplicatesCheckbox');
+const sortURLsCheckbox = document.getElementById('sortURLsCheckbox');
 
 const extractURLs = (htmlString) => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlString, 'text/html');
     return Array.from(doc.links)
         .map(link => link.href)
-        .filter(url => /^https?:\/\//.test(url));
+        .filter(url => {
+            if (defaultCheckbox.checked) {
+                return /^https?:\/\//.test(url);
+            }
+            return true;
+        });
+};
+
+const processURLs = (urls) => {
+    let processedURLs = [...urls];
+
+    if (removeDuplicatesCheckbox.checked) {
+        processedURLs = [...new Set(processedURLs)];
+    }
+
+    if (sortURLsCheckbox.checked) {
+        processedURLs.sort();
+    }
+
+    return processedURLs;
 };
 
 input.addEventListener('paste', (event) => {
@@ -18,7 +40,8 @@ input.addEventListener('paste', (event) => {
     const urls = extractURLs(pastedHTML);
 
     if (urls.length > 0) {
-        output.value = urls.join('\n');
+        const finalURLs = processURLs(urls);
+        output.value = finalURLs.join('\n');
         outputContainer.classList.remove('d-none');
         input.innerHTML = '<span class="text-success">Content processed. URLs have been extracted.</span>';
     } else {
@@ -49,4 +72,12 @@ input.addEventListener('blur', () => {
     if (!input.textContent.trim()) {
         input.innerHTML = '<span class="placeholder">Paste your content here...</span>';
     }
+});
+
+removeDuplicatesCheckbox.addEventListener('change', () => {
+    console.log('Remove Duplicates:', removeDuplicatesCheckbox.checked);
+});
+
+sortURLsCheckbox.addEventListener('change', () => {
+    console.log('Sort URLs:', sortURLsCheckbox.checked);
 });
