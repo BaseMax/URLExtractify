@@ -9,9 +9,17 @@
         #input {
             min-height: 150px;
             overflow-y: auto;
+            background-color: #f8f9fa;
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+            padding: 10px;
         }
         #output {
             min-height: 200px;
+            resize: none;
+        }
+        .placeholder {
+            color: #adb5bd;
         }
     </style>
 </head>
@@ -24,16 +32,16 @@
 
         <div class="mb-3">
             <div id="input" 
-                 class="form-control bg-light" 
+                 class="form-control" 
                  contenteditable="true" 
                  aria-label="Input area for pasting content with links">
-                <span class="text-muted">Paste your content here...</span>
+                <span class="placeholder">Paste your content here...</span>
             </div>
         </div>
 
         <div id="output-container" class="d-none mt-3">
             <h2 class="h5">Extracted URLs</h2>
-            <textarea id="output" class="form-control mb-2" readonly aria-label="Extracted URLs output"></textarea>
+            <textarea id="output" class="form-control mb-2" readonly aria-label="Extracted URLs"></textarea>
             <button id="copy-button" class="btn btn-primary w-100">Copy URLs to Clipboard</button>
         </div>
     </div>
@@ -45,34 +53,34 @@
         const copyButton = document.getElementById('copy-button');
 
         const extractURLs = (htmlString) => {
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = htmlString;
-
-            return Array.from(tempDiv.getElementsByTagName('a'))
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlString, 'text/html');
+            return Array.from(doc.links)
                 .map(link => link.href)
-                .filter(url => url.startsWith('http'));
+                .filter(url => /^https?:\/\//.test(url));
         };
 
         input.addEventListener('paste', (event) => {
             event.preventDefault();
-
             const clipboardData = event.clipboardData || window.clipboardData;
-            const pastedHTML = clipboardData.getData('text/html');
+            const pastedHTML = clipboardData.getData('text/html') || clipboardData.getData('text/plain');
             const urls = extractURLs(pastedHTML);
 
             if (urls.length > 0) {
                 output.value = urls.join('\n');
                 outputContainer.classList.remove('d-none');
+                input.innerHTML = '<span class="text-success">Content processed. URLs have been extracted.</span>';
             } else {
                 outputContainer.classList.add('d-none');
+                input.innerHTML = '<span class="text-danger">No valid URLs found. Please try again.</span>';
             }
-
-            input.innerHTML = '<span class="text-success">Content processed. URLs have been extracted.</span>';
         });
 
         input.addEventListener('focus', () => {
-            if (input.textContent.includes('Content processed')) {
+            if (input.textContent.includes('Content processed') || input.textContent.includes('No valid URLs found')) {
                 input.innerHTML = '';
+            } else if (input.querySelector('.placeholder')) {
+                input.textContent = '';
             }
         });
 
@@ -81,8 +89,14 @@
                 await navigator.clipboard.writeText(output.value);
                 copyButton.textContent = 'Copied!';
                 setTimeout(() => (copyButton.textContent = 'Copy URLs to Clipboard'), 1500);
-            } catch (error) {
+            } catch {
                 alert('Failed to copy URLs. Please try again.');
+            }
+        });
+
+        input.addEventListener('blur', () => {
+            if (!input.textContent.trim()) {
+                input.innerHTML = '<span class="placeholder">Paste your content here...</span>';
             }
         });
     </script>
